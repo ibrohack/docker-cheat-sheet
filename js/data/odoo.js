@@ -49,6 +49,58 @@ window.CHEATSHEET.push({
       ["docker exec <ct_db> vacuumdb -U odoo -d <db> --full --analyze","Reclaim space and refresh statistics (locks tables while it runs)","care"],
       ["docker exec -i <ct_db> psql -U odoo -d <db> < script.sql","Run a SQL file against a database (-i, never -t)"],
       ["docker logs --tail 100 <ct_db>","Last lines of the PostgreSQL log"]
+    ]},
+    { label:"Backup: SQL and filestore",
+      note:"A full Odoo backup is the database plus its filestore (/var/lib/odoo/filestore/<db>). Keep both from the same moment. Never use docker exec -t when redirecting output to a file: a TTY corrupts it.",
+      items:[
+      ["docker exec <ct_db> pg_dump -U odoo <db> > db.sql","Dump the database (no -t: a TTY would corrupt the file)"],
+      ["docker compose exec -T <service_db> pg_dump -U odoo <db> > <db>.sql","The same with compose (-T: no TTY)"],
+      ["docker exec <ct_db> pg_dump -U odoo <db> | gzip > <db>_$(date +%F).sql.gz","Compressed dump with today's date in the name"],
+      ["docker exec <ct_db> pg_dump -U odoo -Fc <db> > <db>.dump","Custom format: compressed, and pg_restore can restore parts of it"],
+      ["docker exec <ct_db> pg_dump -U odoo --no-owner --no-acl <db> > <db>.sql","Portable dump that restores under any database user"],
+      ["docker exec <ct> tar czf - -C /var/lib/odoo/filestore <db> > filestore_<db>.tar.gz","Back up the filestore of one database"],
+      ["docker cp <ct>:/var/lib/odoo/filestore/<db> ./filestore_<db>","Copy the filestore out as a plain folder"],
+      ["gunzip -t <db>.sql.gz","Check that a compressed backup isn't corrupt"],
+      ["docker exec -i <ct_db> pg_restore -l < <db>.dump","List what a custom-format dump contains"],
+      ["0 2 * * * docker exec <ct_db> pg_dump -U odoo <db> | gzip > /backups/<db>_$(date +\\%F).sql.gz","crontab line: nightly dump at 02:00 (a % must be written \\%)"],
+      ["find /backups -name '*.sql.gz' -mtime +14 -delete","Delete backups older than 14 days","danger"]
+    ]},
+    { label:"Restore: SQL and filestore",
+      note:"Restore into a new, empty database (createdb first) and put the filestore in a folder with the same name as that database.",
+      items:[
+      ["docker exec -i <ct_db> psql -U odoo -d <db_new> < <db>.sql","Restore a SQL dump into an empty database"],
+      ["docker compose exec -T <service_db> psql -U odoo -d <db_new> < <db>.sql","The same with compose"],
+      ["gunzip -c <db>.sql.gz | docker exec -i <ct_db> psql -U odoo -d <db_new>","Restore from a compressed dump"],
+      ["docker exec -i <ct_db> pg_restore -U odoo -d <db_new> --no-owner < <db>.dump","Restore a custom-format dump"],
+      ["docker exec -i <ct> tar xzf - -C /var/lib/odoo/filestore < filestore_<db>.tar.gz","Restore a filestore backup (the folder is named after the database)"],
+      ["docker exec <ct> mv /var/lib/odoo/filestore/<db> /var/lib/odoo/filestore/<db_new>","Rename the filestore folder to match the new database","care"],
+      ["docker cp ./filestore_<db> <ct>:/var/lib/odoo/filestore/<db_new>","Copy a filestore folder in (it arrives owned by root: fix that next)"],
+      ["docker exec -u root <ct> chown -R odoo:odoo /var/lib/odoo/filestore/<db_new>","Fix the ownership of a restored filestore"],
+      ["docker compose run --rm <service> odoo neutralize -d <db_new>","Neutralize a restored copy: outgoing mail, most crons and external integrations are switched off","care"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo neutralize -d <db_new>'","The same in the running container","care"],
+      ["docker exec <ct_db> psql -U odoo -d <db_new> -c \"UPDATE ir_cron SET active = false; UPDATE ir_mail_server SET active = false;\"","Neutralize by hand (older Odoo versions): stop crons and outgoing mail","care"]
+    ]},
+    { label:"Odoo CLI: backup and copy (Odoo 19)",
+      note:"These commands handle the filestore for you. Run them with the same PGHOST wrapper; to use compose instead of the container name, replace docker exec <ct> with docker compose exec <service>.",
+      items:[
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db dump <db> -' > <db>.zip","Full backup (dump + filestore) as a zip on your machine"],
+      ["docker cp <db>.zip <ct>:/tmp/<db>.zip","Copy a zip backup into the container"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db load <db_new> /tmp/<db>.zip'","Restore a zip (dump + filestore) as a new database; add -n to neutralize it"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db duplicate <db> <db_new>'","Duplicate a database together with its filestore"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db rename <db> <db_new>'","Rename a database and its filestore","care"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db drop <db>'","Delete a database and its filestore","danger"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo db init <db_new>'","Create a fresh database (user admin, password admin)"],
+      ["docker exec <ct> sh -c 'PGHOST=$HOST PGUSER=$USER PGPASSWORD=$PASSWORD odoo module upgrade -d <db> <module>'","Update a module with the new CLI"]
+    ]},
+    { label:"Odoo backup over HTTP (master password)",
+      note:"Works on any Odoo version through the database manager. Replace localhost:8069 with your host. The master password (admin_passwd in odoo.conf) stays in your shell history.",
+      items:[
+      ["curl -X POST -F \"master_pwd=<master_pwd>\" -F \"name=<db>\" -F \"backup_format=zip\" -o <db>.zip http://localhost:8069/web/database/backup","Full backup: dump + filestore in one zip","care"],
+      ["curl -X POST -F \"master_pwd=<master_pwd>\" -F \"name=<db>\" -F \"backup_format=dump\" -o <db>.dump http://localhost:8069/web/database/backup","Only the pg_dump file, no filestore","care"],
+      ["unzip -l <db>.zip","Look inside a backup: dump.sql, filestore/, manifest.json"],
+      ["curl -X POST -F \"master_pwd=<master_pwd>\" -F \"name=<db_new>\" -F \"copy=true\" -F \"backup_file=@<db>.zip\" http://localhost:8069/web/database/restore","Restore a zip as a new database (copy=true gives it a new UUID; false keeps it as a moved database)","care"],
+      ["curl -X POST -H \"Content-Type: application/json\" -d '{\"params\":{}}' http://localhost:8069/web/database/list","List the databases through the API"],
+      ["curl -X POST -F \"master_pwd=<master_pwd>\" -F \"name=<db>\" http://localhost:8069/web/database/drop","Delete a database and its filestore","danger"]
     ]}
   ]
 });

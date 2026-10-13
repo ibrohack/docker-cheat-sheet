@@ -1,0 +1,213 @@
+const DATA = [
+  {
+    id:"containers", h:"Containers", note:"Start, look inside, stop.",
+    items:[
+      ["docker ps","Running containers"],
+      ["docker ps -a","All of them, including stopped ones"],
+      ["docker run -d --name <ct> <img>","Start in the background with a name"],
+      ["docker run --rm -it <img> sh","Disposable session: removed on exit"],
+      ["docker run -d -p 8069:8069 <img>","Publish a port host:container"],
+      ["docker run -d -e KEY=value <img>","Pass an environment variable"],
+      ["docker exec -it <ct> bash","Open a shell inside a running container"],
+      ["docker exec -u root -it <ct> bash","Enter as root (install packages, permissions)"],
+      ["docker logs -f --tail 100 <ct>","Follow the log starting from the last 100 lines"],
+      ["docker logs --since 10m <ct>","Only the last 10 minutes"],
+      ["docker stop <ct>","Graceful stop (SIGTERM, then SIGKILL)"],
+      ["docker restart <ct>","Restart"],
+      ["docker rm <ct>","Delete a stopped container","care"],
+      ["docker rm -f <ct>","Force delete while running","care"],
+      ["docker stats","Live CPU and memory usage"],
+      ["docker top <ct>","Processes inside the container"],
+      ["docker inspect <ct>","Full configuration as JSON"],
+      ["docker inspect -f '{{.State.Health.Status}}' <ct>","Healthcheck status only"],
+      ["docker port <ct>","Which ports are mapped"],
+      ["docker diff <ct>","Files changed compared to the image"]
+    ]
+  },
+  {
+    id:"images", h:"Images", note:"Pull, build, tag.",
+    items:[
+      ["docker images","Local images"],
+      ["docker pull <img>:<tag>","Download a specific version"],
+      ["docker build -t <img>:<tag> .","Build from the Dockerfile in the current directory"],
+      ["docker build --no-cache -t <img> .","Build ignoring the cache"],
+      ["docker build -f Dockerfile.dev -t <img> .","Use a different Dockerfile"],
+      ["docker tag <img>:<tag> <repo>/<img>:<tag>","Retag before publishing"],
+      ["docker push <repo>/<img>:<tag>","Push to the registry"],
+      ["docker history <img>","Image layers and their size"],
+      ["docker rmi <img>","Delete an image","care"],
+      ["docker save -o img.tar <img>","Export an image to a file"],
+      ["docker load -i img.tar","Import an image from a file"]
+    ]
+  },
+  {
+    id:"volumes", h:"Volumes and files", note:"Where the things you can't lose live.",
+    items:[
+      ["docker volume ls","List volumes"],
+      ["docker volume inspect <vol>","Details, including the real path on the host"],
+      ["docker volume create <vol>","Create a named volume"],
+      ["docker run -v <vol>:/path <img>","Mount a named volume"],
+      ["docker run -v \"$PWD\":/path <img>","Mount a host folder (bind mount)"],
+      ["docker run -v <vol>:/path:ro <img>","Mount read-only"],
+      ["docker run --rm -it -v <vol>:/data alpine sh","Explore a volume without its container"],
+      ["docker cp <ct>:/path ./destination","Copy files out of the container"],
+      ["docker cp ./file <ct>:/path","Copy files into the container"],
+      ["docker run --rm -v <vol>:/d -v \"$PWD\":/b alpine tar czf /b/backup.tar.gz -C /d .","Back up the volume"],
+      ["docker volume rm <vol>","Delete a volume and its data","danger"]
+    ]
+  },
+  {
+    id:"networks", h:"Networks", note:"How containers see each other.",
+    items:[
+      ["docker network ls","List networks"],
+      ["docker network create <network>","Create your own bridge network"],
+      ["docker run --network <network> --name db <img>","Join a network: the name becomes the host"],
+      ["docker network connect <network> <ct>","Add a container to another network"],
+      ["docker network disconnect <network> <ct>","Remove it from the network"],
+      ["docker network inspect <network>","See which containers and IPs are inside"]
+    ]
+  },
+  {
+    id:"compose", h:"Docker Compose", note:"Run it from the folder containing docker-compose.yml.",
+    items:[
+      ["docker compose up -d","Start all services in the background"],
+      ["docker compose up -d --build","Rebuild images before starting"],
+      ["docker compose ps","Service status"],
+      ["docker compose logs -f <service>","Follow a service's log"],
+      ["docker compose exec <service> bash","Shell inside a service"],
+      ["docker compose run --rm <service> <cmd>","Run a one-off command in a new container"],
+      ["docker compose restart <service>","Restart a single service"],
+      ["docker compose stop","Stop without deleting anything"],
+      ["docker compose down","Stop and delete containers and network","care"],
+      ["docker compose down -v","Also deletes volumes: you lose the data","danger"],
+      ["docker compose config","Show the resolved YAML with variables"],
+      ["docker compose pull","Update the declared images"],
+      ["docker compose -f compose.prod.yml up -d","Use a different compose file"]
+    ]
+  },
+  {
+    id:"cleanup", h:"Space and cleanup", note:"What you recover when the disk fills up.",
+    items:[
+      ["docker system df","How much space images, containers and volumes use"],
+      ["docker system df -v","Detailed breakdown, item by item"],
+      ["docker container prune","Delete all stopped containers","care"],
+      ["docker image prune","Delete dangling (untagged) images","care"],
+      ["docker image prune -a","Delete every image without an associated container","danger"],
+      ["docker builder prune","Empty the build cache","care"],
+      ["docker volume prune","Delete volumes nobody uses","danger"],
+      ["docker system prune -a --volumes","Wipes out everything unused","danger"],
+      ["docker events","Real-time stream of daemon events"],
+      ["docker version","Client and daemon versions"]
+    ]
+  },
+  {
+    id:"odoo", h:"Odoo recipes", note:"Shortcuts for day-to-day work with instances.",
+    items:[
+      ["docker exec -it <ct> ls -lh /var/lib/odoo/filestore","See the filestore per database"],
+      ["docker exec -it <ct> du -sh /var/lib/odoo/filestore/*","Attachment size of each database"],
+      ["docker exec -it <ct_db> psql -U odoo -l","List the databases"],
+      ["docker exec -t <ct_db> pg_dump -U odoo <db> > db.sql","Dump the database"],
+      ["docker compose logs -f odoo | grep -i error","Filter errors from the Odoo log"],
+      ["docker compose restart odoo","Restart Odoo after editing odoo.conf"],
+      ["docker compose exec odoo odoo -u <module> -d <db> --stop-after-init","Update a module and exit"],
+      ["docker compose exec odoo odoo shell -d <db>","Odoo shell against a database"]
+    ]
+  }
+];
+
+const out = document.getElementById('out');
+const jumps = document.getElementById('jumps');
+const q = document.getElementById('q');
+const empty = document.getElementById('empty');
+const qecho = document.getElementById('qecho');
+
+function highlightArgs(cmd){
+  return cmd
+    .replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(&lt;[a-z_]+&gt;)/g, '<span class="arg">$1</span>');
+}
+
+DATA.forEach(sec => {
+  const a = document.createElement('a');
+  a.href = '#' + sec.id; a.textContent = sec.h;
+  jumps.appendChild(a);
+
+  const s = document.createElement('section');
+  s.id = sec.id;
+  s.innerHTML = `<div class="sechead"><h2>${sec.h}</h2><span class="count">${sec.items.length}</span><p>${sec.note}</p></div>`;
+  const list = document.createElement('div');
+  list.className = 'list';
+  sec.items.forEach(([cmd, desc, flag]) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.tabIndex = 0;
+    row.dataset.cmd = cmd;
+    row.dataset.hay = (cmd + ' ' + desc).toLowerCase();
+    const mark = flag === 'danger'
+      ? '<span class="flag danger">destructive</span>'
+      : flag === 'care' ? '<span class="flag care">careful</span>' : '';
+    row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${desc}${mark}</p>`;
+    list.appendChild(row);
+  });
+  s.appendChild(list);
+  out.appendChild(s);
+});
+
+function copy(row){
+  const text = row.dataset.cmd;
+  const done = () => {
+    document.querySelectorAll('.row.copied').forEach(r => r.classList.remove('copied'));
+    row.classList.add('copied');
+    setTimeout(() => row.classList.remove('copied'), 1200);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else { fallback(); }
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+out.addEventListener('click', e => {
+  const row = e.target.closest('.row');
+  if (row) copy(row);
+});
+out.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const row = e.target.closest('.row');
+  if (row) { e.preventDefault(); copy(row); }
+});
+
+q.addEventListener('input', () => {
+  const term = q.value.trim().toLowerCase();
+  let total = 0;
+  document.querySelectorAll('section').forEach(sec => {
+    let shown = 0;
+    sec.querySelectorAll('.row').forEach(row => {
+      const hit = !term || row.dataset.hay.includes(term);
+      row.hidden = !hit;
+      if (hit) shown++;
+    });
+    sec.querySelector('.count').textContent = shown;
+    sec.hidden = shown === 0;
+    total += shown;
+  });
+  empty.hidden = total !== 0;
+  qecho.textContent = q.value;
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); q.select(); }
+  if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; q.dispatchEvent(new Event('input')); q.blur(); }
+});
+
+document.getElementById('theme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+  root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+});

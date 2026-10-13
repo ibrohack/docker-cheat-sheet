@@ -21,6 +21,7 @@ python -m http.server 8000     # then open http://localhost:8000
 | Click a row, or focus it and press `Enter` / `Space` | copy the command |
 | Type in the search box (`/` focuses it, `Esc` clears it) | filter by command, description, group or section name; `orphans` or `odoo` match a whole group or section |
 | Click a section in the bar under the search box | jump to it |
+| Open **Placeholders and conventions** under the title | see what each `<placeholder>` stands for |
 | Toggle theme | switch light and dark (it starts with your system setting) |
 
 Rows tagged **careful** change or delete something you could get back (stopped containers, caches, a restart); **destructive** ones delete data or images that are gone unless you have a backup.
@@ -29,7 +30,7 @@ The page loads IBM Plex from Google Fonts. Offline it falls back to system fonts
 
 ## Reading the commands
 
-Anything in angle brackets is a placeholder to replace before you run the command. They are highlighted on the page and listed in the footer: `<ct>` a container, `<ct_db>` the PostgreSQL container, `<img>` an image, `<vol>` a volume, `<service>` / `<service_db>` the Compose services, `<db>` / `<db_new>` databases, and so on.
+Anything in angle brackets is a placeholder to replace before you run the command. They are highlighted on the page and listed in the collapsible **Placeholders and conventions** panel under the title: `<ct>` a container, `<ct_db>` the PostgreSQL container, `<img>` an image, `<vol>` a volume, `<service>` / `<service_db>` the Compose services, `<db>` / `<db_new>` databases, and so on.
 
 - Commands are written for **bash** (Linux, macOS, or Git Bash and WSL on Windows).
 - The Odoo rows assume the official images' defaults: database user `odoo`, filestore in `/var/lib/odoo`, addons in `/mnt/extra-addons`, configuration in `/etc/odoo/odoo.conf`.
@@ -39,7 +40,7 @@ Anything in angle brackets is a placeholder to replace before you run the comman
 ## How it is organised
 
 ```text
-index.html            page markup, footer legend and the list of scripts to load
+index.html            page markup, placeholder legend and the list of scripts to load
 css/style.css         all styles (light and dark themes are CSS variables)
 js/app.js             renders the sections, search, copy-to-clipboard, theme toggle
 js/data/<section>.js  the commands, one file per section
@@ -69,7 +70,7 @@ window.CHEATSHEET.push({
 - A row is `[command, description]` or `[command, description, flag]`, where `flag` is `"care"` or `"danger"`.
 - The description is plain text; it is escaped, so `<` and `&` are safe.
 - `label` and `note` on a group are optional. A section with a single unlabelled group looks like one plain list.
-- Use placeholders that already exist in the footer legend. If you introduce a new one, add it to the legend in `index.html`. A placeholder is lower case letters, digits, `_` or `-` inside `<>`.
+- Use placeholders that already exist in the legend (the **Placeholders and conventions** panel in `index.html`). If you introduce a new one, add it there. A placeholder is lower case letters, digits, `_` or `-` inside `<>`.
 - Keep every command copy-pasteable as one line, and flag anything that deletes or overwrites data.
 
 ### Adding a section

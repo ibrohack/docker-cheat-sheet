@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"cleanup", h:"Space and cleanup", note:"What you recover when the disk fills up.",
   groups:[
     { items:[

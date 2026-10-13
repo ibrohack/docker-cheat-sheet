@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"odoo", h:"Odoo recipes", note:"Shortcuts for day-to-day work with instances.",
   groups:[
     { items:[

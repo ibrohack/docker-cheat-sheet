@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"volumes", h:"Volumes and files", note:"Where the things you can't lose live.",
   groups:[
     { items:[

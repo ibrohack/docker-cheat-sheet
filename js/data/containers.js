@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"containers", h:"Containers", note:"Start, look inside, stop.",
   groups:[
     { items:[

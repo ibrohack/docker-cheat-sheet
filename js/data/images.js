@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"images", h:"Images", note:"Pull, build, tag.",
   groups:[
     { items:[

@@ -1,4 +1,5 @@
-(window.CHEATSHEET = window.CHEATSHEET || []).push({
+window.CHEATSHEET = window.CHEATSHEET || [];
+window.CHEATSHEET.push({
   id:"compose", h:"Docker Compose", note:"Run it from the folder containing docker-compose.yml.",
   groups:[
     { items:[

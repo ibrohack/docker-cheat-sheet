@@ -32,8 +32,32 @@
 <div class="empty" id="empty" hidden>No results for <code id="qecho"></code></div>
 
 <footer>
-  Replace <code>&lt;ct&gt;</code> with the container name or ID, <code>&lt;img&gt;</code> with the image and <code>&lt;vol&gt;</code> with the volume.
-  Almost every command accepts <code>--help</code>.
+  <p>Replace the highlighted placeholders before you run a command:</p>
+  <ul class="legend">
+    <li><code>&lt;ct&gt;</code> container name or ID</li>
+    <li><code>&lt;ct2&gt;</code> a second container</li>
+    <li><code>&lt;ct_db&gt;</code> the PostgreSQL container</li>
+    <li><code>&lt;img&gt;</code> image</li>
+    <li><code>&lt;tag&gt;</code> image tag, such as <code>19.0</code></li>
+    <li><code>&lt;repo&gt;</code> registry or user prefix</li>
+    <li><code>&lt;stage&gt;</code> stage name in a Dockerfile</li>
+    <li><code>&lt;vol&gt;</code> volume</li>
+    <li><code>&lt;vol_new&gt;</code> a second, new volume</li>
+    <li><code>&lt;network&gt;</code> network</li>
+    <li><code>&lt;service&gt;</code> compose service (Odoo)</li>
+    <li><code>&lt;service_db&gt;</code> compose service (PostgreSQL)</li>
+    <li><code>&lt;project&gt;</code> compose project name</li>
+    <li><code>&lt;name&gt;</code> compose profile name</li>
+    <li><code>&lt;cmd&gt;</code> the command to run inside</li>
+    <li><code>&lt;new&gt;</code> a new name</li>
+    <li><code>&lt;term&gt;</code> a search term</li>
+    <li><code>&lt;module&gt;</code> Odoo module (technical name)</li>
+    <li><code>&lt;db&gt;</code> database name</li>
+    <li><code>&lt;db_new&gt;</code> name of the new or target database</li>
+    <li><code>&lt;master_pwd&gt;</code> Odoo master password (<code>admin_passwd</code>)</li>
+  </ul>
+  <p>Commands are written for a bash shell (Linux, macOS, or Git Bash and WSL on Windows).
+  Almost every command accepts <code>--help</code>.</p>
 </footer>
 </div>
 

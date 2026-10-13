@@ -196,6 +196,12 @@ footer{
   padding:22px 0 48px;color:var(--ink-soft);font-size:13.5px;
 }
 footer code{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+footer p{margin:0 0 10px}
+.legend{
+  list-style:none;margin:0 0 16px;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:4px 24px;
+}
+.legend code{color:var(--signal)}
 
 @media (max-width:720px){
   header{padding-top:36px}

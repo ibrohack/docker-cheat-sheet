@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docker Cheat Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#e9eef3;
+  --panel:#ffffff;
+  --ink:#0f2438;
+  --ink-soft:#4a6076;
+  --rule:#cdd8e2;
+  --rule-soft:#e2e9ef;
+  --signal:#125fb8;
+  --caution:#9a5b00;
+  --caution-bg:#f7ead2;
+  --danger:#9e2020;
+  --danger-bg:#f6dcdc;
+  --code-bg:#f1f5f8;
+  --shadow:0 1px 0 rgba(15,36,56,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0c1620;
+    --panel:#111d29;
+    --ink:#dfe8f0;
+    --ink-soft:#8ba0b4;
+    --rule:#22323f;
+    --rule-soft:#1a2733;
+    --signal:#5fa8f5;
+    --caution:#e0a64a;
+    --caution-bg:#2e2412;
+    --danger:#f08585;
+    --danger-bg:#331919;
+    --code-bg:#0a131c;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0c1620;
+  --panel:#111d29;
+  --ink:#dfe8f0;
+  --ink-soft:#8ba0b4;
+  --rule:#22323f;
+  --rule-soft:#1a2733;
+  --signal:#5fa8f5;
+  --caution:#e0a64a;
+  --caution-bg:#2e2412;
+  --danger:#f08585;
+  --danger-bg:#331919;
+  --code-bg:#0a131c;
+  --shadow:none;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;
+  line-height:1.5;
+}
+
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+
+/* ---- header ---- */
+header{padding:56px 0 0}
+.title{
+  font-family:"IBM Plex Mono","SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:clamp(34px,6vw,56px);
+  font-weight:600;
+  letter-spacing:-.02em;
+  margin:0;
+  line-height:1.05;
+}
+.title .caret{color:var(--signal)}
+.tagline{margin:10px 0 0;color:var(--ink-soft);max-width:56ch}
+
+.controls{
+  position:sticky;top:0;z-index:20;
+  background:var(--paper);
+  padding:22px 0 12px;
+  margin-top:26px;
+  border-bottom:1px solid var(--rule);
+}
+.searchrow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.field{
+  position:relative;flex:1 1 320px;min-width:0;
+}
+.field input{
+  width:100%;
+  font-family:"IBM Plex Mono",monospace;
+  font-size:16px;
+  color:var(--ink);
+  background:var(--panel);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  padding:12px 74px 12px 14px;
+  box-shadow:var(--shadow);
+}
+.field input:focus{outline:2px solid var(--signal);outline-offset:1px;border-color:var(--signal)}
+.field input::placeholder{color:var(--ink-soft);opacity:.75}
+.slash{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  font-family:"IBM Plex Mono",monospace;font-size:12px;
+  color:var(--ink-soft);border:1px solid var(--rule);border-radius:3px;
+  padding:2px 7px;pointer-events:none;background:var(--code-bg);
+}
+.themebtn{
+  font-family:inherit;font-size:14px;color:var(--ink-soft);
+  background:var(--panel);border:1px solid var(--rule);border-radius:4px;
+  padding:0 16px;cursor:pointer;white-space:nowrap;
+}
+.themebtn:hover{color:var(--ink);border-color:var(--ink-soft)}
+.themebtn:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+
+.jumps{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.jumps a{
+  font-size:13.5px;color:var(--ink-soft);text-decoration:none;
+  padding:4px 10px;border-radius:3px;border:1px solid transparent;
+}
+.jumps a:hover{color:var(--signal);border-color:var(--rule);background:var(--panel)}
+.jumps a:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+
+/* ---- sections ---- */
+main{padding:8px 0 90px}
+section{margin-top:44px;scroll-margin-top:118px}
+.sechead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
+h2{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:19px;font-weight:600;margin:0;letter-spacing:-.01em;
+}
+.count{font-size:13px;color:var(--ink-soft);font-family:"IBM Plex Mono",monospace}
+.sechead p{margin:0;color:var(--ink-soft);font-size:14px}
+
+.list{
+  background:var(--panel);
+  border:1px solid var(--rule);
+  border-radius:5px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+.row{
+  display:grid;
+  grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);
+  gap:18px;
+  align-items:baseline;
+  padding:11px 16px;
+  border-top:1px solid var(--rule-soft);
+  cursor:pointer;
+  position:relative;
+}
+.row:first-child{border-top:0}
+.row:hover{background:var(--code-bg)}
+.row:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
+.cmd{
+  font-family:"IBM Plex Mono",monospace;
+  font-size:14px;
+  color:var(--ink);
+  word-break:break-word;
+  margin:0;
+}
+.cmd .arg{color:var(--signal)}
+.desc{color:var(--ink-soft);font-size:14.5px;margin:0}
+.flag{
+  display:inline-block;font-size:11px;font-family:"IBM Plex Mono",monospace;
+  padding:1px 6px;border-radius:3px;margin-left:8px;vertical-align:1px;
+  white-space:nowrap;
+}
+.flag.care{color:var(--caution);background:var(--caution-bg)}
+.flag.danger{color:var(--danger);background:var(--danger-bg)}
+.row.copied::after{
+  content:"copied";
+  position:absolute;right:12px;top:50%;transform:translateY(-50%);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;
+  color:var(--signal);background:var(--panel);padding:2px 8px;
+  border:1px solid var(--signal);border-radius:3px;
+}
+
+.empty{
+  border:1px dashed var(--rule);border-radius:5px;
+  padding:36px 20px;text-align:center;color:var(--ink-soft);
+  margin-top:36px;
+}
+.empty code{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+
+footer{
+  border-top:1px solid var(--rule);
+  padding:22px 0 48px;color:var(--ink-soft);font-size:13.5px;
+}
+footer code{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+
+@media (max-width:720px){
+  header{padding-top:36px}
+  .row{grid-template-columns:1fr;gap:4px;padding:12px 14px}
+  .desc{font-size:14px}
+  .controls{padding-top:16px}
+  section{scroll-margin-top:150px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+  <h1 class="title">docker <span class="caret">▌</span></h1>
+  <p class="tagline">The commands people actually use, grouped by what you are trying to do. Click any line to copy it.</p>
+
+  <div class="controls">
+    <div class="searchrow">
+      <div class="field">
+        <input id="q" type="search" autocomplete="off" spellcheck="false" placeholder="filter: volume, logs, prune, compose…" aria-label="Filter commands">
+        <span class="slash">/</span>
+      </div>
+      <button class="themebtn" id="theme" type="button">Toggle theme</button>
+    </div>
+    <nav class="jumps" id="jumps" aria-label="Sections"></nav>
+  </div>
+</header>
+
+<main id="out"></main>
+<div class="empty" id="empty" hidden>No results for <code id="qecho"></code></div>
+
+<footer>
+  Replace <code>&lt;ct&gt;</code> with the container name or ID, <code>&lt;img&gt;</code> with the image and <code>&lt;vol&gt;</code> with the volume.
+  Almost every command accepts <code>--help</code>.
+</footer>
+</div>
+
+<script>
+const DATA = [
+  {
+    id:"containers", h:"Containers", note:"Start, look inside, stop.",
+    items:[
+      ["docker ps","Running containers"],
+      ["docker ps -a","All of them, including stopped ones"],
+      ["docker run -d --name <ct> <img>","Start in the background with a name"],
+      ["docker run --rm -it <img> sh","Disposable session: removed on exit"],
+      ["docker run -d -p 8069:8069 <img>","Publish a port host:container"],
+      ["docker run -d -e KEY=value <img>","Pass an environment variable"],
+      ["docker exec -it <ct> bash","Open a shell inside a running container"],
+      ["docker exec -u root -it <ct> bash","Enter as root (install packages, permissions)"],
+      ["docker logs -f --tail 100 <ct>","Follow the log starting from the last 100 lines"],
+      ["docker logs --since 10m <ct>","Only the last 10 minutes"],
+      ["docker stop <ct>","Graceful stop (SIGTERM, then SIGKILL)"],
+      ["docker restart <ct>","Restart"],
+      ["docker rm <ct>","Delete a stopped container","care"],
+      ["docker rm -f <ct>","Force delete while running","care"],
+      ["docker stats","Live CPU and memory usage"],
+      ["docker top <ct>","Processes inside the container"],
+      ["docker inspect <ct>","Full configuration as JSON"],
+      ["docker inspect -f '{{.State.Health.Status}}' <ct>","Healthcheck status only"],
+      ["docker port <ct>","Which ports are mapped"],
+      ["docker diff <ct>","Files changed compared to the image"]
+    ]
+  },
+  {
+    id:"images", h:"Images", note:"Pull, build, tag.",
+    items:[
+      ["docker images","Local images"],
+      ["docker pull <img>:<tag>","Download a specific version"],
+      ["docker build -t <img>:<tag> .","Build from the Dockerfile in the current directory"],
+      ["docker build --no-cache -t <img> .","Build ignoring the cache"],
+      ["docker build -f Dockerfile.dev -t <img> .","Use a different Dockerfile"],
+      ["docker tag <img>:<tag> <repo>/<img>:<tag>","Retag before publishing"],
+      ["docker push <repo>/<img>:<tag>","Push to the registry"],
+      ["docker history <img>","Image layers and their size"],
+      ["docker rmi <img>","Delete an image","care"],
+      ["docker save -o img.tar <img>","Export an image to a file"],
+      ["docker load -i img.tar","Import an image from a file"]
+    ]
+  },
+  {
+    id:"volumes", h:"Volumes and files", note:"Where the things you can't lose live.",
+    items:[
+      ["docker volume ls","List volumes"],
+      ["docker volume inspect <vol>","Details, including the real path on the host"],
+      ["docker volume create <vol>","Create a named volume"],
+      ["docker run -v <vol>:/path <img>","Mount a named volume"],
+      ["docker run -v \"$PWD\":/path <img>","Mount a host folder (bind mount)"],
+      ["docker run -v <vol>:/path:ro <img>","Mount read-only"],
+      ["docker run --rm -it -v <vol>:/data alpine sh","Explore a volume without its container"],
+      ["docker cp <ct>:/path ./destination","Copy files out of the container"],
+      ["docker cp ./file <ct>:/path","Copy files into the container"],
+      ["docker run --rm -v <vol>:/d -v \"$PWD\":/b alpine tar czf /b/backup.tar.gz -C /d .","Back up the volume"],
+      ["docker volume rm <vol>","Delete a volume and its data","danger"]
+    ]
+  },
+  {
+    id:"networks", h:"Networks", note:"How containers see each other.",
+    items:[
+      ["docker network ls","List networks"],
+      ["docker network create <network>","Create your own bridge network"],
+      ["docker run --network <network> --name db <img>","Join a network: the name becomes the host"],
+      ["docker network connect <network> <ct>","Add a container to another network"],
+      ["docker network disconnect <network> <ct>","Remove it from the network"],
+      ["docker network inspect <network>","See which containers and IPs are inside"]
+    ]
+  },
+  {
+    id:"compose", h:"Docker Compose", note:"Run it from the folder containing docker-compose.yml.",
+    items:[
+      ["docker compose up -d","Start all services in the background"],
+      ["docker compose up -d --build","Rebuild images before starting"],
+      ["docker compose ps","Service status"],
+      ["docker compose logs -f <service>","Follow a service's log"],
+      ["docker compose exec <service> bash","Shell inside a service"],
+      ["docker compose run --rm <service> <cmd>","Run a one-off command in a new container"],
+      ["docker compose restart <service>","Restart a single service"],
+      ["docker compose stop","Stop without deleting anything"],
+      ["docker compose down","Stop and delete containers and network","care"],
+      ["docker compose down -v","Also deletes volumes: you lose the data","danger"],
+      ["docker compose config","Show the resolved YAML with variables"],
+      ["docker compose pull","Update the declared images"],
+      ["docker compose -f compose.prod.yml up -d","Use a different compose file"]
+    ]
+  },
+  {
+    id:"cleanup", h:"Space and cleanup", note:"What you recover when the disk fills up.",
+    items:[
+      ["docker system df","How much space images, containers and volumes use"],
+      ["docker system df -v","Detailed breakdown, item by item"],
+      ["docker container prune","Delete all stopped containers","care"],
+      ["docker image prune","Delete dangling (untagged) images","care"],
+      ["docker image prune -a","Delete every image without an associated container","danger"],
+      ["docker builder prune","Empty the build cache","care"],
+      ["docker volume prune","Delete volumes nobody uses","danger"],
+      ["docker system prune -a --volumes","Wipes out everything unused","danger"],
+      ["docker events","Real-time stream of daemon events"],
+      ["docker version","Client and daemon versions"]
+    ]
+  },
+  {
+    id:"odoo", h:"Odoo recipes", note:"Shortcuts for day-to-day work with instances.",
+    items:[
+      ["docker exec -it <ct> ls -lh /var/lib/odoo/filestore","See the filestore per database"],
+      ["docker exec -it <ct> du -sh /var/lib/odoo/filestore/*","Attachment size of each database"],
+      ["docker exec -it <ct_db> psql -U odoo -l","List the databases"],
+      ["docker exec -t <ct_db> pg_dump -U odoo <db> > db.sql","Dump the database"],
+      ["docker compose logs -f odoo | grep -i error","Filter errors from the Odoo log"],
+      ["docker compose restart odoo","Restart Odoo after editing odoo.conf"],
+      ["docker compose exec odoo odoo -u <module> -d <db> --stop-after-init","Update a module and exit"],
+      ["docker compose exec odoo odoo shell -d <db>","Odoo shell against a database"]
+    ]
+  }
+];
+
+const out = document.getElementById('out');
+const jumps = document.getElementById('jumps');
+const q = document.getElementById('q');
+const empty = document.getElementById('empty');
+const qecho = document.getElementById('qecho');
+
+function highlightArgs(cmd){
+  return cmd
+    .replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
+    .replace(/(&lt;[a-z_]+&gt;)/g, '<span class="arg">$1</span>');
+}
+
+DATA.forEach(sec => {
+  const a = document.createElement('a');
+  a.href = '#' + sec.id; a.textContent = sec.h;
+  jumps.appendChild(a);
+
+  const s = document.createElement('section');
+  s.id = sec.id;
+  s.innerHTML = `<div class="sechead"><h2>${sec.h}</h2><span class="count">${sec.items.length}</span><p>${sec.note}</p></div>`;
+  const list = document.createElement('div');
+  list.className = 'list';
+  sec.items.forEach(([cmd, desc, flag]) => {
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.tabIndex = 0;
+    row.dataset.cmd = cmd;
+    row.dataset.hay = (cmd + ' ' + desc).toLowerCase();
+    const mark = flag === 'danger'
+      ? '<span class="flag danger">destructive</span>'
+      : flag === 'care' ? '<span class="flag care">careful</span>' : '';
+    row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${desc}${mark}</p>`;
+    list.appendChild(row);
+  });
+  s.appendChild(list);
+  out.appendChild(s);
+});
+
+function copy(row){
+  const text = row.dataset.cmd;
+  const done = () => {
+    document.querySelectorAll('.row.copied').forEach(r => r.classList.remove('copied'));
+    row.classList.add('copied');
+    setTimeout(() => row.classList.remove('copied'), 1200);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(fallback);
+  } else { fallback(); }
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+
+out.addEventListener('click', e => {
+  const row = e.target.closest('.row');
+  if (row) copy(row);
+});
+out.addEventListener('keydown', e => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const row = e.target.closest('.row');
+  if (row) { e.preventDefault(); copy(row); }
+});
+
+q.addEventListener('input', () => {
+  const term = q.value.trim().toLowerCase();
+  let total = 0;
+  document.querySelectorAll('section').forEach(sec => {
+    let shown = 0;
+    sec.querySelectorAll('.row').forEach(row => {
+      const hit = !term || row.dataset.hay.includes(term);
+      row.hidden = !hit;
+      if (hit) shown++;
+    });
+    sec.querySelector('.count').textContent = shown;
+    sec.hidden = shown === 0;
+    total += shown;
+  });
+  empty.hidden = total !== 0;
+  qecho.textContent = q.value;
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); q.select(); }
+  if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; q.dispatchEvent(new Event('input')); q.blur(); }
+});
+
+document.getElementById('theme').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const current = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+  root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Keep line endings the same on every machine: LF in the repository and in the working tree.
+# This overrides a global core.autocrlf (the usual Windows default), so Git stops converting
+# files and stops printing "LF will be replaced by CRLF" warnings.
+# Binary files are detected automatically and left untouched.
+* text=auto eol=lf

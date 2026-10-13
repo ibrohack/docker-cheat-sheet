@@ -86,3 +86,7 @@ node --check js/data/odoo.js     # syntax of the file you touched
 ```
 
 Then open `index.html` and make sure the section renders and the search finds your row.
+
+## License
+
+Released under the [MIT License](LICENSE).

@@ -1,4 +1,4 @@
-# Docker cheat sheet
+# Docker Cheat Sheet
 
 A searchable, click-to-copy cheat sheet of Docker, Docker Compose and Odoo commands, grouped by what you are trying to do. It is a plain static site: no build step, no dependencies, no framework.
 

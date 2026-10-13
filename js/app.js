@@ -10,6 +10,13 @@ function highlightArgs(cmd){
     .replace(/(&lt;[a-z_]+&gt;)/g, '<span class="arg">$1</span>');
 }
 
+// The first visible row of a list has no top border; recomputed whenever the filter hides rows.
+function markLead(list){
+  list.querySelectorAll('.row').forEach(r => r.classList.remove('lead'));
+  const first = list.querySelector('.row:not([hidden])');
+  if (first) first.classList.add('lead');
+}
+
 // Sections come from js/data/*.js, each pushing one {id, h, note, groups} onto window.CHEATSHEET.
 const SECTIONS = window.CHEATSHEET || [];
 
@@ -38,6 +45,7 @@ SECTIONS.forEach(sec => {
       row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${desc}${mark}</p>`;
       list.appendChild(row);
     });
+    markLead(list);
     s.appendChild(list);
   });
   out.appendChild(s);
@@ -77,10 +85,13 @@ q.addEventListener('input', () => {
   let total = 0;
   document.querySelectorAll('section').forEach(sec => {
     let shown = 0;
-    sec.querySelectorAll('.row').forEach(row => {
-      const hit = !term || row.dataset.hay.includes(term);
-      row.hidden = !hit;
-      if (hit) shown++;
+    sec.querySelectorAll('.list').forEach(list => {
+      list.querySelectorAll('.row').forEach(row => {
+        const hit = !term || row.dataset.hay.includes(term);
+        row.hidden = !hit;
+        if (hit) shown++;
+      });
+      markLead(list);
     });
     sec.querySelector('.count').textContent = shown;
     sec.hidden = shown === 0;

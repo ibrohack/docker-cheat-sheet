@@ -47,6 +47,7 @@
 }
 
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 body{
   margin:0;
@@ -146,7 +147,7 @@ h2{
   cursor:pointer;
   position:relative;
 }
-.row:first-child{border-top:0}
+.row.lead{border-top:0}
 .row:hover{background:var(--code-bg)}
 .row:focus-visible{outline:2px solid var(--signal);outline-offset:-2px}
 .cmd{

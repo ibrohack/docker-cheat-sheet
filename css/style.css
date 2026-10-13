@@ -137,6 +137,8 @@ h2{
   color:var(--ink-soft);margin:28px 0 8px;
 }
 .sechead + .group .subhead{margin-top:2px}
+/* optional explanation between a group caption and its list */
+.subnote{margin:-2px 0 10px;color:var(--ink-soft);font-size:14px;max-width:84ch}
 
 .list{
   background:var(--panel);

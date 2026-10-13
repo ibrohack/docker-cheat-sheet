@@ -39,6 +39,12 @@ SECTIONS.forEach(sec => {
       h.textContent = group.label;
       g.appendChild(h);
     }
+    if (group.note) {
+      const p = document.createElement('p');
+      p.className = 'subnote';
+      p.textContent = group.note;
+      g.appendChild(p);
+    }
     const list = document.createElement('div');
     list.className = 'list';
     group.items.forEach(([cmd, desc, flag]) => {

@@ -4,10 +4,10 @@ const q = document.getElementById('q');
 const empty = document.getElementById('empty');
 const qecho = document.getElementById('qecho');
 
+const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
 function highlightArgs(cmd){
-  return cmd
-    .replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))
-    .replace(/(&lt;[a-z_]+&gt;)/g, '<span class="arg">$1</span>');
+  return esc(cmd).replace(/(&lt;[a-z0-9_-]+&gt;)/g, '<span class="arg">$1</span>');
 }
 
 // The first visible row of a list has no top border; recomputed whenever the filter hides rows.
@@ -31,6 +31,14 @@ SECTIONS.forEach(sec => {
   s.id = sec.id;
   s.innerHTML = `<div class="sechead"><h2>${sec.h}</h2><span class="count">${total}</span><p>${sec.note}</p></div>`;
   sec.groups.forEach(group => {
+    const g = document.createElement('div');
+    g.className = 'group';
+    if (group.label) {
+      const h = document.createElement('h3');
+      h.className = 'subhead';
+      h.textContent = group.label;
+      g.appendChild(h);
+    }
     const list = document.createElement('div');
     list.className = 'list';
     group.items.forEach(([cmd, desc, flag]) => {
@@ -38,15 +46,17 @@ SECTIONS.forEach(sec => {
       row.className = 'row';
       row.tabIndex = 0;
       row.dataset.cmd = cmd;
-      row.dataset.hay = (cmd + ' ' + desc).toLowerCase();
+      // searchable text: the command, its description, and the group and section it sits in
+      row.dataset.hay = [cmd, desc, group.label || '', sec.h].join(' ').toLowerCase();
       const mark = flag === 'danger'
         ? '<span class="flag danger">destructive</span>'
         : flag === 'care' ? '<span class="flag care">careful</span>' : '';
-      row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${desc}${mark}</p>`;
+      row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${esc(desc)}${mark}</p>`;
       list.appendChild(row);
     });
     markLead(list);
-    s.appendChild(list);
+    g.appendChild(list);
+    s.appendChild(g);
   });
   out.appendChild(s);
 });
@@ -85,13 +95,17 @@ q.addEventListener('input', () => {
   let total = 0;
   document.querySelectorAll('section').forEach(sec => {
     let shown = 0;
-    sec.querySelectorAll('.list').forEach(list => {
+    sec.querySelectorAll('.group').forEach(g => {
+      const list = g.querySelector('.list');
+      let hits = 0;
       list.querySelectorAll('.row').forEach(row => {
         const hit = !term || row.dataset.hay.includes(term);
         row.hidden = !hit;
-        if (hit) shown++;
+        if (hit) hits++;
       });
       markLead(list);
+      g.hidden = hits === 0;
+      shown += hits;
     });
     sec.querySelector('.count').textContent = shown;
     sec.hidden = shown === 0;

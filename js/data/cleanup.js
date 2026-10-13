@@ -8,7 +8,8 @@
       ["docker image prune","Delete dangling (untagged) images","care"],
       ["docker image prune -a","Delete every image without an associated container","danger"],
       ["docker builder prune","Empty the build cache","care"],
-      ["docker volume prune","Delete volumes nobody uses","danger"],
+      ["docker volume prune","Delete unused anonymous volumes (named ones are kept)","danger"],
+      ["docker volume prune -a","Delete every unused volume, named ones too","danger"],
       ["docker system prune -a --volumes","Wipes out everything unused","danger"],
       ["docker events","Real-time stream of daemon events"],
       ["docker version","Client and daemon versions"]

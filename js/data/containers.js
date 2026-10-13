@@ -54,7 +54,8 @@ window.CHEATSHEET.push({
       ["docker wait <ct>","Block until it stops, then print the exit code"],
       ["docker stop $(docker ps -q)","Stop every running container","care"],
       ["docker rm <ct>","Delete a stopped container","care"],
-      ["docker rm -f <ct>","Force delete while running","care"]
+      ["docker rm -f <ct>","Force delete while running","care"],
+      ["docker rm -v <ct>","Delete it with its anonymous volumes (otherwise they stay behind as orphans)","care"]
     ]}
   ]
 });

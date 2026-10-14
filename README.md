@@ -20,7 +20,7 @@ python -m http.server 8000     # then open http://localhost:8000
 | --- | --- |
 | Click a row, or focus it and press `Enter` / `Space` | copy the command |
 | Type in the search box (`/` focuses it, `Esc` clears it) | filter by command, description, group or section name; `orphans` or `odoo` match a whole group or section |
-| Click a section in the bar under the search box | jump to it |
+| Click a section in the bar under the search box | jump to it (the search box and this bar stay pinned at the top while you scroll) |
 | Open **Placeholders and conventions** under the title | see what each `<placeholder>` stands for |
 | Toggle theme | switch light and dark (it starts with your system setting) |
 

@@ -48,7 +48,8 @@
 
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html{-webkit-text-size-adjust:100%}
+/* --bar-h is the height of the sticky .controls bar, set by js/app.js (118px until it runs) */
+html{-webkit-text-size-adjust:100%;scroll-padding-top:calc(var(--bar-h,118px) + 12px)}
 body{
   margin:0;
   background:var(--paper);
@@ -73,6 +74,9 @@ header{padding:56px 0 0}
 .title .caret{color:var(--signal)}
 .tagline{margin:10px 0 0;color:var(--ink-soft);max-width:56ch}
 
+/* Sticky search bar. It must be a direct child of .wrap, not of <header>: a sticky element
+   never leaves its parent's box, so inside the short header it would scroll away.
+   The 22px of top padding is also the gap above it, so it has no margin of its own. */
 .controls{
   position:sticky;top:0;z-index:20;
   background:var(--paper);
@@ -120,7 +124,7 @@ header{padding:56px 0 0}
 
 /* ---- sections ---- */
 main{padding:8px 0 90px}
-section{margin-top:44px;scroll-margin-top:118px}
+section{margin-top:44px}
 .sechead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 h2{
   font-family:"IBM Plex Mono",monospace;
@@ -228,6 +232,5 @@ footer a:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
   .row{grid-template-columns:1fr;gap:4px;padding:12px 14px}
   .desc{font-size:14px}
   .controls{padding-top:16px}
-  section{scroll-margin-top:150px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}

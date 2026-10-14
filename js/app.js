@@ -126,6 +126,13 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; q.dispatchEvent(new Event('input')); q.blur(); }
 });
 
+// The sticky bar wraps on narrow screens, so its height is not a fixed number. Publish it as --bar-h and let
+// css/style.css use it as scroll-padding-top: jump links and keyboard focus then stop below the bar.
+const bar = document.querySelector('.controls');
+const syncBarHeight = () => document.documentElement.style.setProperty('--bar-h', bar.offsetHeight + 'px');
+new ResizeObserver(syncBarHeight).observe(bar);
+syncBarHeight();
+
 document.getElementById('theme').addEventListener('click', () => {
   const root = document.documentElement;
   const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;

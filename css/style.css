@@ -77,7 +77,6 @@ header{padding:56px 0 0}
   position:sticky;top:0;z-index:20;
   background:var(--paper);
   padding:22px 0 12px;
-  margin-top:26px;
   border-bottom:1px solid var(--rule);
 }
 .searchrow{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}

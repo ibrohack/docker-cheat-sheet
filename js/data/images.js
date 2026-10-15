@@ -7,7 +7,7 @@ window.CHEATSHEET.push({
       ["docker images -a","All images, intermediate layers included"],
       ["docker images <img>","Only the images of one repository"],
       ["docker images --digests","Show the sha256 digest of each image"],
-      ["docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}'","Compact view: name, tag, size"],
+      [String.raw`docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}'`,"Compact view: name, tag, size"],
       ["docker image inspect <img>","Full details as JSON"],
       ["docker image inspect -f '{{.Config.Env}}' <img>","Environment variables baked into the image"],
       ["docker history <img>","Image layers and their size"],

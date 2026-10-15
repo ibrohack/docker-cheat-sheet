@@ -5,8 +5,8 @@ window.CHEATSHEET.push({
     { label:"Disk usage", items:[
       ["docker system df","How much space images, containers and volumes use"],
       ["docker system df -v","Detailed breakdown, item by item"],
-      ["docker system df --format 'table {{.Type}}\\t{{.Size}}\\t{{.Reclaimable}}'","Summary: type, size, how much is reclaimable"],
-      ["docker ps -as --format 'table {{.Names}}\\t{{.Size}}'","Writable-layer size of every container"],
+      [String.raw`docker system df --format 'table {{.Type}}\t{{.Size}}\t{{.Reclaimable}}'`,"Summary: type, size, how much is reclaimable"],
+      [String.raw`docker ps -as --format 'table {{.Names}}\t{{.Size}}'`,"Writable-layer size of every container"],
       ["docker buildx du","Space taken by the build cache"],
       ["docker info --format '{{.DockerRootDir}}'","Where Docker keeps its data on disk"],
       ["sudo sh -c 'du -sh /var/lib/docker/containers/*/*-json.log | sort -h'","Size of every container log file, biggest last (Linux host, json-file driver)"],
@@ -18,7 +18,7 @@ window.CHEATSHEET.push({
       ["docker volume ls -q | grep -E '^[0-9a-f]{64}$'","Anonymous volumes (64-character hash names), used or not"],
       ["docker ps -a --filter volume=<vol>","Containers that still reference a volume"],
       ["docker network ls -f dangling=true","Networks with no running container (what network prune deletes)"],
-      ["comm -23 <(docker network ls --filter type=custom --format '{{.Name}}' | sort -u) <(docker ps -a --format '{{.Networks}}' | tr ',' '\\n' | sort -u)","Networks no container references at all, stopped ones included (bash)"],
+      [String.raw`comm -23 <(docker network ls --filter type=custom --format '{{.Name}}' | sort -u) <(docker ps -a --format '{{.Networks}}' | tr ',' '\n' | sort -u)`,"Networks no container references at all, stopped ones included (bash)"],
       ["docker images -f dangling=true","Dangling images: untagged leftovers of old builds"],
       ["comm -23 <(docker image ls -q --no-trunc | sort -u) <(docker ps -aq | xargs -r docker inspect -f '{{.Image}}' | sort -u)","Image IDs no container uses (what image prune -a would delete) (bash)"]
     ]},

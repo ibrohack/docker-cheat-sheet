@@ -8,7 +8,7 @@ window.CHEATSHEET.push({
       ["docker ps -q","Only the IDs, handy inside $(...)"],
       ["docker ps -s","Adds the disk size of each container"],
       ["docker ps -a -f status=exited","Only the stopped ones (also created, paused, dead)"],
-      ["docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}'","Compact view: name, status, ports"],
+      [String.raw`docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'`,"Compact view: name, status, ports"],
       ["docker stats","Live CPU and memory usage"],
       ["docker stats --no-stream","One snapshot instead of a live view"],
       ["docker top <ct>","Processes inside the container"],

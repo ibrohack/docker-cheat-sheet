@@ -62,7 +62,7 @@ window.CHEATSHEET.push({
       ["docker cp <ct>:/var/lib/odoo/filestore/<db> ./filestore_<db>","Copy the filestore out as a plain folder"],
       ["gunzip -t <db>.sql.gz","Check that a compressed backup isn't corrupt"],
       ["docker exec -i <ct_db> pg_restore -l < <db>.dump","List what a custom-format dump contains"],
-      ["0 2 * * * docker exec <ct_db> pg_dump -U odoo <db> | gzip > /backups/<db>_$(date +\\%F).sql.gz","crontab line: nightly dump at 02:00 (a % must be written \\%)"],
+      [String.raw`0 2 * * * docker exec <ct_db> pg_dump -U odoo <db> | gzip > /backups/<db>_$(date +\%F).sql.gz`,String.raw`crontab line: nightly dump at 02:00 (a % must be written \%)`],
       ["find /backups -name '*.sql.gz' -mtime +14 -delete","Delete backups older than 14 days","danger"]
     ]},
     { label:"Restore: SQL and filestore",

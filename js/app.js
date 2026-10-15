@@ -133,6 +133,17 @@ const syncBarHeight = () => document.documentElement.style.setProperty('--bar-h'
 new ResizeObserver(syncBarHeight).observe(bar);
 syncBarHeight();
 
+// Back-to-top button: shown once the page is scrolled about one screen down.
+const toTop = document.getElementById('totop');
+const syncToTop = () => { toTop.hidden = window.scrollY < window.innerHeight; };
+window.addEventListener('scroll', syncToTop, { passive: true });
+window.addEventListener('resize', syncToTop);
+syncToTop();
+toTop.addEventListener('click', () => {
+  const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: calm ? 'auto' : 'smooth' });
+});
+
 document.getElementById('theme').addEventListener('click', () => {
   const root = document.documentElement;
   const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;

@@ -114,6 +114,18 @@ header{padding:56px 0 0}
 .themebtn:hover{color:var(--ink);border-color:var(--ink-soft)}
 .themebtn:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
 
+/* Back-to-top button: js/app.js un-hides it once the page is scrolled about one screen down */
+.totop{
+  position:fixed;right:20px;bottom:20px;z-index:20;
+  width:44px;height:44px;padding:0;
+  font-family:"IBM Plex Mono",monospace;font-size:20px;line-height:1;
+  color:var(--ink-soft);background:var(--panel);
+  border:1px solid var(--rule);border-radius:4px;
+  box-shadow:var(--shadow);cursor:pointer;
+}
+.totop:hover{color:var(--ink);border-color:var(--ink-soft)}
+.totop:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+
 .jumps{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .jumps a{
   font-size:13.5px;color:var(--ink-soft);text-decoration:none;

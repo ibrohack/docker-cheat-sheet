@@ -6,6 +6,12 @@ const qecho = document.getElementById('qecho');
 
 const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
+// Badge shown after a row's description; any other flag value shows nothing.
+const FLAG_MARKS = new Map([
+  ['danger', '<span class="flag danger">destructive</span>'],
+  ['care', '<span class="flag care">careful</span>'],
+]);
+
 function highlightArgs(cmd){
   return esc(cmd).replace(/(&lt;[a-z0-9_-]+&gt;)/g, '<span class="arg">$1</span>');
 }
@@ -54,9 +60,7 @@ SECTIONS.forEach(sec => {
       row.dataset.cmd = cmd;
       // searchable text: the command, its description, and the group and section it sits in
       row.dataset.hay = [cmd, desc, group.label || '', sec.h].join(' ').toLowerCase();
-      const mark = flag === 'danger'
-        ? '<span class="flag danger">destructive</span>'
-        : flag === 'care' ? '<span class="flag care">careful</span>' : '';
+      const mark = FLAG_MARKS.get(flag) ?? '';
       row.innerHTML = `<p class="cmd">${highlightArgs(cmd)}</p><p class="desc">${esc(desc)}${mark}</p>`;
       list.appendChild(row);
     });
@@ -81,8 +85,10 @@ function copy(row){
     const ta = document.createElement('textarea');
     ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
     document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); done(); } catch(e){}
-    document.body.removeChild(ta);
+    // execCommand is deprecated but is the only way to copy where the async Clipboard API is
+    // unavailable (a page served over plain http). If it fails the row just gets no "copied" mark.
+    try { document.execCommand('copy'); done(); } catch { /* copy unsupported: no "copied" mark */ } // NOSONAR
+    ta.remove();
   }
 }
 
@@ -147,6 +153,6 @@ toTop.addEventListener('click', () => {
 document.getElementById('theme').addEventListener('click', () => {
   const root = document.documentElement;
   const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const current = root.getAttribute('data-theme') || (dark ? 'dark' : 'light');
-  root.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+  const current = root.dataset.theme || (dark ? 'dark' : 'light');
+  root.dataset.theme = current === 'dark' ? 'light' : 'dark';
 });
